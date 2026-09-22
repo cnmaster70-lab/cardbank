@@ -12,13 +12,13 @@ import { CARDS, PERKS, money, type EnrollCard } from "@/lib/cards";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "ENROLL_VAULT — Checked Enroll Balances, BTC Only" },
+      { title: "BlamWorld.cc — Checked Enroll Balances, BTC Only" },
       {
         name: "description",
         content:
           "Pre-made Visa, Mastercard and Discover enroll balances with full login access. Restocks 3 days a week, Bitcoin payments only.",
       },
-      { property: "og:title", content: "ENROLL_VAULT — Checked Enroll Balances" },
+      { property: "og:title", content: "BlamWorld.cc — Checked Enroll Balances" },
       {
         property: "og:description",
         content: "Real checked balances, instant manual delivery, Bitcoin only.",
@@ -173,7 +173,7 @@ function Index() {
         </section>
 
         <footer className="mt-16 border-t border-border/60 pt-8 text-xs leading-relaxed text-muted-foreground">
-          ENROLL_VAULT · Bitcoin payments only · Balances update mostly 3 days a week. All sales are
+          BlamWorld.cc · Bitcoin payments only · Balances update mostly 3 days a week. All sales are
           final once an enroll is delivered.
         </footer>
       </main>
