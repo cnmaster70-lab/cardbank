@@ -17,10 +17,10 @@ export function SiteHeader() {
         <div className="mx-auto flex max-w-5xl items-center gap-3 px-4 py-3">
           <div className="flex min-w-0 items-center gap-3">
             <span className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-accent/40 bg-secondary font-display text-lg text-accent">
-              E
+              B
             </span>
             <span className="truncate font-display text-xl tracking-wide sm:text-2xl">
-              ENROLL_VAULT
+              BlamWorld.cc
             </span>
           </div>
           <div className="ml-auto flex items-center gap-2">
