@@ -45,7 +45,7 @@ export function CheckoutDialog({ open, onOpenChange, amount, label }: Props) {
   const submit = () => {
     const parsed = emailSchema.safeParse(email);
     if (!parsed.success) {
-      setError(parsed.error.issues[0].message);
+      setError(parsed.error.issues[0]?.message ?? "Enter a valid email address");
       return;
     }
     setError(null);
