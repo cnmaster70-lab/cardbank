@@ -11,26 +11,30 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { BTC_ADDRESS, money } from "@/lib/cards";
+import { BTC_ADDRESS, money, type Product } from "@/lib/cards";
+import { createOrder } from "@/lib/shop.functions";
 
-const emailSchema = z
+const emailSchema = z.string().trim().email().max(255);
+const telegramSchema = z
   .string()
   .trim()
-  .email({ message: "Enter a valid email address" })
-  .max(255, { message: "Email is too long" });
+  .regex(/^@?[A-Za-z0-9_]{4,32}$/, { message: "Enter a valid Telegram username" });
 
 type Props = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   amount: number;
   label: string;
+  items: Product[];
 };
 
-export function CheckoutDialog({ open, onOpenChange, amount, label }: Props) {
-  const [email, setEmail] = useState("");
+export function CheckoutDialog({ open, onOpenChange, amount, label, items }: Props) {
+  const [contactType, setContactType] = useState<"email" | "telegram">("email");
+  const [contact, setContact] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [confirmed, setConfirmed] = useState(false);
+  const [sending, setSending] = useState(false);
 
   const copy = async () => {
     try {
@@ -42,15 +46,32 @@ export function CheckoutDialog({ open, onOpenChange, amount, label }: Props) {
     }
   };
 
-  const submit = () => {
-    const parsed = emailSchema.safeParse(email);
+  const submit = async () => {
+    const parsed =
+      contactType === "email" ? emailSchema.safeParse(contact) : telegramSchema.safeParse(contact);
     if (!parsed.success) {
-      setError(parsed.error.issues[0]?.message ?? "Enter a valid email address");
+      setError(
+        contactType === "email" ? "Enter a valid email address" : "Enter a valid Telegram username",
+      );
       return;
     }
     setError(null);
+    setSending(true);
+    const res = await createOrder({
+      data: {
+        contact: parsed.data,
+        contactType,
+        amount,
+        items: items.map((i) => ({ id: i.id, brand: i.brand, balance: i.balance, price: i.price })),
+      },
+    }).catch(() => ({ ok: false as const }));
+    setSending(false);
+    if (!res.ok) {
+      toast.error("Couldn't send the order — try again.");
+      return;
+    }
     setConfirmed(true);
-    toast.success("Delivery email saved — send the BTC to complete the order.");
+    toast.success("Order received — send the BTC to complete it.");
   };
 
   return (
@@ -108,24 +129,43 @@ export function CheckoutDialog({ open, onOpenChange, amount, label }: Props) {
                 3
               </span>
               <span className="text-foreground/90">
-                Enter your email below — the login details land there right after the payment confirms.
+                Leave your email or Telegram below — the login details land there right after the payment
+                confirms.
               </span>
             </li>
           </ol>
 
           <div className="space-y-2">
-            <label htmlFor="checkout-email" className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
-              Your email
-            </label>
+            <div className="flex gap-2">
+              <Button
+                variant={contactType === "email" ? "silver" : "wire"}
+                className="h-9 flex-1"
+                onClick={() => {
+                  setContactType("email");
+                  setError(null);
+                }}
+              >
+                Email
+              </Button>
+              <Button
+                variant={contactType === "telegram" ? "silver" : "wire"}
+                className="h-9 flex-1"
+                onClick={() => {
+                  setContactType("telegram");
+                  setError(null);
+                }}
+              >
+                Telegram
+              </Button>
+            </div>
             <Input
-              id="checkout-email"
-              type="email"
-              inputMode="email"
+              id="checkout-contact"
+              type="text"
               maxLength={255}
-              placeholder="you@email.com"
-              value={email}
+              placeholder={contactType === "email" ? "you@email.com" : "@username"}
+              value={contact}
               onChange={(e) => {
-                setEmail(e.target.value);
+                setContact(e.target.value);
                 setError(null);
                 setConfirmed(false);
               }}
@@ -133,13 +173,13 @@ export function CheckoutDialog({ open, onOpenChange, amount, label }: Props) {
             {error && <p className="text-xs text-destructive">{error}</p>}
             {confirmed && (
               <p className="text-xs text-accent">
-                Saved. Once the BTC lands, delivery goes out to {email.trim()}.
+                Saved. Once the BTC lands, delivery goes out to {contact.trim()}.
               </p>
             )}
           </div>
 
-          <Button variant="silver" size="lg" className="w-full" onClick={submit}>
-            {confirmed ? "Email saved" : "I sent the BTC"}
+          <Button variant="silver" size="lg" className="w-full" disabled={sending} onClick={submit}>
+            {confirmed ? "Order sent" : sending ? "Sending…" : "I sent the BTC"}
           </Button>
           <p className="text-center text-xs text-muted-foreground">
             Payments are confirmed on-chain. No refunds once an enroll is delivered.

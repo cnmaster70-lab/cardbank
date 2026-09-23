@@ -7,44 +7,50 @@ import { Input } from "@/components/ui/input";
 import { SiteHeader } from "@/components/SiteHeader";
 import { CheckoutDialog } from "@/components/CheckoutDialog";
 import { useCart } from "@/lib/cart";
-import { CARDS, PERKS, money, type EnrollCard } from "@/lib/cards";
+import { PERKS, money, tierFor, type Product } from "@/lib/cards";
+import { listProducts } from "@/lib/shop.functions";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "BlamWorld.cc — Checked Enroll Balances, BTC Only" },
+      { title: "Frog Enrolls — Checked Enroll Balances, BTC Only" },
       {
         name: "description",
         content:
-          "Pre-made Visa, Mastercard and Discover enroll balances with full login access. Restocks 3 days a week, Bitcoin payments only.",
+          "Frog Enrolls: pre-made Visa, Mastercard and Discover enroll balances with full login access. Bitcoin payments only.",
       },
-      { property: "og:title", content: "BlamWorld.cc — Checked Enroll Balances" },
+      { property: "og:title", content: "Frog Enrolls — Best quality enrolls" },
       {
         property: "og:description",
         content: "Real checked balances, instant manual delivery, Bitcoin only.",
       },
     ],
   }),
+  loader: () => listProducts(),
   component: Index,
+  errorComponent: () => (
+    <div className="p-10 text-center text-sm text-muted-foreground">Inventory failed to load.</div>
+  ),
 });
 
 function Index() {
+  const products = Route.useLoaderData();
   const { add, has, count } = useCart();
   const [maxSpend, setMaxSpend] = useState("");
   const [sort, setSort] = useState<"low" | "high" | "balance">("low");
   const [inStockOnly, setInStockOnly] = useState(false);
-  const [buyNow, setBuyNow] = useState<EnrollCard | null>(null);
+  const [buyNow, setBuyNow] = useState<Product | null>(null);
 
   const list = useMemo(() => {
     const cap = Number(maxSpend);
-    let out = CARDS.filter((c) => (inStockOnly ? c.inStock : true));
+    let out = products.filter((c) => (inStockOnly ? c.in_stock : true));
     if (maxSpend && !Number.isNaN(cap) && cap > 0) out = out.filter((c) => c.price <= cap);
     return [...out].sort((a, b) =>
       sort === "low" ? a.price - b.price : sort === "high" ? b.price - a.price : b.balance - a.balance,
     );
-  }, [maxSpend, sort, inStockOnly]);
+  }, [products, maxSpend, sort, inStockOnly]);
 
-  const stockCount = CARDS.filter((c) => c.inStock).length;
+  const stockCount = products.filter((c) => c.in_stock).length;
 
   return (
     <div className="min-h-screen">
@@ -94,7 +100,7 @@ function Index() {
           </div>
 
           <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
-            Showing {list.length} of {CARDS.length} cards · {stockCount} in stock right now
+            Showing {list.length} of {products.length} cards · {stockCount} in stock right now
             {count > 0 ? ` · ${count} in your cart` : ""}
           </p>
         </section>
@@ -110,7 +116,7 @@ function Index() {
                   {c.brand} · {c.processor}
                 </span>
                 <span className="rounded-full bg-secondary px-3 py-2 text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-                  {c.tier}
+                  {tierFor(c.balance)}
                 </span>
               </div>
 
@@ -140,7 +146,7 @@ function Index() {
                 ))}
               </ul>
 
-              {c.inStock ? (
+              {c.in_stock ? (
                 <div className="mt-6 space-y-3">
                   <Button variant="silver" size="lg" className="w-full" onClick={() => setBuyNow(c)}>
                     Buy Now
@@ -150,7 +156,7 @@ function Index() {
                     size="lg"
                     className="w-full"
                     onClick={() => {
-                      add(c.id);
+                      add(c);
                       toast.success("Added to cart", { description: `${c.brand} · ${money(c.balance)}` });
                     }}
                   >
@@ -173,7 +179,7 @@ function Index() {
         </section>
 
         <footer className="mt-16 border-t border-border/60 pt-8 text-xs leading-relaxed text-muted-foreground">
-          BlamWorld.cc · Bitcoin payments only · Balances update mostly 3 days a week. All sales are
+          Frog Enrolls · Bitcoin payments only · Balances update mostly 3 days a week. All sales are
           final once an enroll is delivered.
         </footer>
       </main>
@@ -182,6 +188,7 @@ function Index() {
         open={buyNow !== null}
         onOpenChange={(v) => !v && setBuyNow(null)}
         amount={buyNow?.price ?? 0}
+        items={buyNow ? [buyNow] : []}
         label={buyNow ? `${buyNow.brand} · ${money(buyNow.balance)} enroll` : ""}
       />
     </div>
