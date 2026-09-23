@@ -89,6 +89,7 @@ export function CartSheet() {
         open={checkout}
         onOpenChange={setCheckout}
         amount={total}
+        items={items}
         label={`${count} enroll${count === 1 ? "" : "s"} in cart`}
       />
     </>
