@@ -1,27 +1,26 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
-import { CARDS, type EnrollCard } from "./cards";
+import type { Product } from "./cards";
 
 type CartCtx = {
-  ids: string[];
-  items: EnrollCard[];
+  items: Product[];
   total: number;
   count: number;
   has: (id: string) => boolean;
-  add: (id: string) => void;
+  add: (p: Product) => void;
   remove: (id: string) => void;
   clear: () => void;
 };
 
 const Ctx = createContext<CartCtx | null>(null);
-const KEY = "enroll-cart-v1";
+const KEY = "frog-cart-v1";
 
 export function CartProvider({ children }: { children: ReactNode }) {
-  const [ids, setIds] = useState<string[]>([]);
+  const [items, setItems] = useState<Product[]>([]);
 
   useEffect(() => {
     try {
       const saved = localStorage.getItem(KEY);
-      if (saved) setIds(JSON.parse(saved));
+      if (saved) setItems(JSON.parse(saved));
     } catch {
       /* ignore */
     }
@@ -29,33 +28,30 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     try {
-      localStorage.setItem(KEY, JSON.stringify(ids));
+      localStorage.setItem(KEY, JSON.stringify(items));
     } catch {
       /* ignore */
     }
-  }, [ids]);
+  }, [items]);
 
-  const add = useCallback((id: string) => {
-    setIds((prev) => (prev.includes(id) ? prev : [...prev, id]));
+  const add = useCallback((p: Product) => {
+    setItems((prev) => (prev.some((x) => x.id === p.id) ? prev : [...prev, p]));
   }, []);
-  const remove = useCallback((id: string) => setIds((prev) => prev.filter((x) => x !== id)), []);
-  const clear = useCallback(() => setIds([]), []);
+  const remove = useCallback((id: string) => setItems((prev) => prev.filter((x) => x.id !== id)), []);
+  const clear = useCallback(() => setItems([]), []);
 
-  const value = useMemo(() => {
-    const items = ids
-      .map((id) => CARDS.find((c) => c.id === id))
-      .filter((c): c is EnrollCard => Boolean(c));
-    return {
-      ids,
+  const value = useMemo(
+    () => ({
       items,
       total: items.reduce((s, c) => s + c.price, 0),
       count: items.length,
-      has: (id: string) => ids.includes(id),
+      has: (id: string) => items.some((x) => x.id === id),
       add,
       remove,
       clear,
-    };
-  }, [ids, add, remove, clear]);
+    }),
+    [items, add, remove, clear],
+  );
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
