@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { FrogLogo } from "@/components/FrogLogo";
+import { BankLogo } from "@/components/BankLogo";
 import { money } from "@/lib/cards";
 import {
   adminData,
@@ -19,9 +19,9 @@ import {
 export const Route = createFileRoute("/admin")({
   head: () => ({
     meta: [
-      { title: "Frog Enrolls — Admin" },
-      { name: "description", content: "Private admin area for Frog Enrolls inventory and orders." },
-      { property: "og:title", content: "Frog Enrolls — Admin" },
+      { title: "CardBank — Admin" },
+      { name: "description", content: "Private admin area for CardBank inventory and orders." },
+      { property: "og:title", content: "CardBank — Admin" },
       { property: "og:description", content: "Private admin area." },
       { name: "robots", content: "noindex" },
     ],
@@ -41,6 +41,8 @@ type Row = {
   in_stock: boolean;
 };
 
+type OrderItem = { id?: string; brand?: string; balance?: number; price?: number };
+
 type Order = {
   id: string;
   contact: string;
@@ -48,7 +50,7 @@ type Order = {
   amount: number;
   status: string;
   created_at: string;
-  items: unknown;
+  items: OrderItem[] | unknown;
 };
 
 const emptyRow: Row = {
@@ -112,8 +114,8 @@ function Admin() {
       <div className="flex min-h-screen items-center justify-center px-4">
         <div className="w-full max-w-sm space-y-4 rounded-3xl border border-border/70 bg-card/80 p-6">
           <div className="flex items-center gap-3 text-accent">
-            <FrogLogo className="size-9" />
-            <h1 className="font-display text-2xl text-foreground">Admin access</h1>
+            <BankLogo className="size-9" />
+            <h1 className="font-display text-2xl text-foreground">CardBank admin</h1>
           </div>
           <Input
             type="password"
@@ -133,8 +135,8 @@ function Admin() {
   return (
     <div className="mx-auto max-w-5xl space-y-6 px-4 py-10">
       <header className="flex flex-wrap items-center gap-3">
-        <FrogLogo className="size-8 text-accent" />
-        <h1 className="font-display text-3xl">Frog Enrolls admin</h1>
+        <BankLogo className="size-8 text-accent" />
+        <h1 className="font-display text-3xl">CardBank admin</h1>
         <div className="ml-auto flex gap-2">
           <Button variant="wire" className="h-10" onClick={refresh}>
             Refresh
@@ -252,6 +254,18 @@ function Admin() {
               <p className="mt-2 text-xs text-muted-foreground">
                 {new Date(o.created_at).toLocaleString()} · status: {o.status}
               </p>
+              {Array.isArray(o.items) && o.items.length > 0 && (
+                <ul className="mt-3 space-y-1 rounded-xl border border-border/60 bg-secondary/40 p-3 text-xs text-foreground/85">
+                  {(o.items as OrderItem[]).map((it, j) => (
+                    <li key={j} className="flex justify-between gap-3">
+                      <span>
+                        {it.brand ?? "Card"} · balance {money(Number(it.balance ?? 0))}
+                      </span>
+                      <span className="text-accent">{money(Number(it.price ?? 0))}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
               <div className="mt-3 flex flex-wrap gap-2">
                 {(["pending", "paid", "delivered", "cancelled"] as const).map((s) => (
                   <Button
