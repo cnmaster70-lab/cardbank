@@ -10,6 +10,7 @@ export type Product = {
   balance: number;
   price: number;
   in_stock: boolean;
+  category: string;
 };
 
 export function tierFor(balance: number): CardTier {

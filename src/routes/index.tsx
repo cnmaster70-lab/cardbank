@@ -43,14 +43,20 @@ function Index() {
 
   const list = useMemo(() => {
     const cap = Number(maxSpend);
-    let out = products.filter((c) => (inStockOnly ? c.in_stock : true));
+    let out = products.filter((c) => c.category !== "other");
+    out = out.filter((c) => (inStockOnly ? c.in_stock : true));
     if (maxSpend && !Number.isNaN(cap) && cap > 0) out = out.filter((c) => c.price <= cap);
     return [...out].sort((a, b) =>
       sort === "low" ? a.price - b.price : sort === "high" ? b.price - a.price : b.balance - a.balance,
     );
   }, [products, maxSpend, sort, inStockOnly]);
 
-  const stockCount = products.filter((c) => c.in_stock).length;
+  const others = useMemo(
+    () => products.filter((c) => c.category === "other").sort((a, b) => b.price - a.price),
+    [products],
+  );
+
+  const stockCount = products.filter((c) => c.category !== "other" && c.in_stock).length;
 
   return (
     <div className="min-h-screen">
@@ -176,6 +182,65 @@ function Index() {
               Nothing matches that budget yet — raise the amount or check back on the next restock.
             </p>
           )}
+        </section>
+
+        <section className="mt-16 space-y-4">
+          <p className="text-[11px] uppercase tracking-[0.3em] text-accent">Small balances</p>
+          <h2 className="font-display text-4xl leading-tight sm:text-5xl">Other</h2>
+          <p className="max-w-xl text-sm leading-relaxed text-muted-foreground">
+            Cheaper picks between $10 and $50 — same rules, same instant manual delivery.
+          </p>
+
+          <div className="overflow-hidden rounded-3xl border border-border/70 bg-card/80 shadow-[var(--shadow-lift)]">
+            <div className="hidden grid-cols-[1.2fr_1.4fr_1fr_0.8fr_0.9fr_auto] gap-3 border-b border-border/60 px-5 py-3 text-[10px] uppercase tracking-[0.2em] text-muted-foreground sm:grid">
+              <span>Name</span>
+              <span>City</span>
+              <span>Brand</span>
+              <span>Price</span>
+              <span>Status</span>
+              <span />
+            </div>
+            <div className="divide-y divide-border/50">
+              {others.map((o) => (
+                <div
+                  key={o.id}
+                  className="grid grid-cols-2 items-center gap-3 px-5 py-4 sm:grid-cols-[1.2fr_1.4fr_1fr_0.8fr_0.9fr_auto]"
+                >
+                  <span className="font-medium">{o.processor}</span>
+                  <span className="text-sm text-muted-foreground">{o.city}</span>
+                  <span className="text-sm">{o.brand}</span>
+                  <span className="font-display text-lg">{money(o.price)}</span>
+                  <span>
+                    {o.in_stock ? (
+                      <span className="rounded-full border border-accent/50 px-3 py-1 text-[10px] uppercase tracking-[0.18em] text-accent">
+                        available
+                      </span>
+                    ) : (
+                      <span className="rounded-full border border-border/70 px-3 py-1 text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+                        sold
+                      </span>
+                    )}
+                  </span>
+                  <span className="col-span-2 sm:col-span-1">
+                    {o.in_stock ? (
+                      <Button variant="silver" className="h-9 w-full sm:w-auto" onClick={() => setBuyNow(o)}>
+                        Request
+                      </Button>
+                    ) : (
+                      <Button variant="wire" className="h-9 w-full sm:w-auto" disabled>
+                        Request
+                      </Button>
+                    )}
+                  </span>
+                </div>
+              ))}
+              {others.length === 0 && (
+                <p className="px-5 py-8 text-center text-sm text-muted-foreground">
+                  Nothing here right now — check back on the next restock.
+                </p>
+              )}
+            </div>
+          </div>
         </section>
 
         <footer className="mt-16 border-t border-border/60 pt-8 text-xs leading-relaxed text-muted-foreground">

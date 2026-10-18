@@ -12,6 +12,7 @@ import {
   adminLogout,
   adminStatus,
   deleteProduct,
+  restockOther,
   saveProduct,
   setOrderStatus,
 } from "@/lib/admin.functions";
@@ -72,6 +73,7 @@ function Admin() {
   const save = useServerFn(saveProduct);
   const del = useServerFn(deleteProduct);
   const mark = useServerFn(setOrderStatus);
+  const restock = useServerFn(restockOther);
 
   const [signedIn, setSignedIn] = useState(false);
   const [password, setPassword] = useState("");
@@ -173,6 +175,26 @@ function Admin() {
 
       {tab === "products" && (
         <div className="space-y-4">
+          <div className="flex flex-wrap items-center gap-3 rounded-3xl border border-border/70 bg-card/60 p-4">
+            <p className="text-sm text-muted-foreground">
+              Other section: {products.filter((p) => (p as Row & { category?: string }).category === "other").length} items
+            </p>
+            <Button
+              variant="silver"
+              className="ml-auto h-10"
+              onClick={async () => {
+                try {
+                  const r = await restock({ data: { count: 10 } });
+                  toast.success(`Restocked ${r.added} new Other items`);
+                  refresh();
+                } catch {
+                  toast.error("Couldn't restock");
+                }
+              }}
+            >
+              Restock Other (+10)
+            </Button>
+          </div>
           <div className="space-y-3 rounded-3xl border border-accent/30 bg-card/70 p-5">
             <p className="text-[11px] uppercase tracking-[0.2em] text-accent">Add a product</p>
             <ProductFields row={draft} onChange={setDraft} />

@@ -8,6 +8,13 @@
       "when": 1790179970623,
       "tag": "0000_create_products_and_orders",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1792330205876,
+      "tag": "0001_add_product_category",
+      "breakpoints": true
     }
   ]
 }

@@ -112,3 +112,45 @@ export const setOrderStatus = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true as const };
   });
+
+const NAMES = [
+  "Coleman", "Omari", "Zinnes", "Makell", "Hacker", "Oler", "Barksdale", "Renfro",
+  "Tollison", "Palmer", "Quimby", "Lindell", "Vannoy", "Strother", "Kimball", "Dunbar",
+  "Epperson", "Fouts", "Grisham", "Hollis", "Ivers", "Jablonski", "Kraus", "Lomax",
+];
+const CITIES = [
+  "Louisville, KY", "Town of Rockingham, VT", "Mountain View, CA", "Savannah, GA",
+  "Fort Collins, CO", "Tulsa, OK", "Boise, ID", "Des Moines, IA", "Reno, NV",
+  "Spokane, WA", "Anchorage, AK", "Biloxi, MS", "Eugene, OR", "Toledo, OH",
+  "Knoxville, TN", "Fresno, CA", "Albany, NY", "Tucson, AZ",
+];
+const BRANDS: Array<[string, string]> = [
+  ["Visa", "4"],
+  ["Mastercard", "5"],
+  ["Discover", "6"],
+];
+
+export const restockOther = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) => z.object({ count: z.number().int().min(1).max(50) }).parse(d))
+  .handler(async ({ data }) => {
+    await requireAdmin();
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const rows = Array.from({ length: data.count }, () => {
+      const [brand, prefix] = BRANDS[Math.floor(Math.random() * BRANDS.length)];
+      const price = Math.round((10 + Math.random() * 40) * 100) / 100;
+      return {
+        brand,
+        processor: NAMES[Math.floor(Math.random() * NAMES.length)],
+        city: CITIES[Math.floor(Math.random() * CITIES.length)],
+        bin: prefix + String(Math.floor(10000 + Math.random() * 89999)),
+        last4: String(Math.floor(1000 + Math.random() * 9000)),
+        balance: price,
+        price,
+        in_stock: true,
+        category: "other",
+      };
+    });
+    const { error } = await supabaseAdmin.from("products").insert(rows);
+    if (error) throw new Error(error.message);
+    return { ok: true as const, added: rows.length };
+  });
