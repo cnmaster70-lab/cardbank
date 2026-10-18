@@ -22,7 +22,7 @@ function publicClient() {
 export const listProducts = createServerFn({ method: "GET" }).handler(async (): Promise<Product[]> => {
   const { data, error } = await publicClient()
     .from("products")
-    .select("id, brand, processor, city, bin, last4, balance, price, in_stock")
+    .select("id, brand, processor, city, bin, last4, balance, price, in_stock, category")
     .order("price", { ascending: true });
   if (error) return [];
   return (data ?? []).map((p) => ({
