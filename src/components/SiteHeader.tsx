@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { CartSheet } from "./CartSheet";
-import { FrogLogo } from "./FrogLogo";
+import { BankLogo } from "./BankLogo";
 
 const TICKER = "ЛУЧШЕЕ КАЧЕСТВО ЭНРОЛЛОВ";
 
@@ -18,9 +18,9 @@ export function SiteHeader() {
         <div className="mx-auto flex max-w-5xl items-center gap-3 px-4 py-3">
           <div className="flex min-w-0 items-center gap-3">
             <span className="flex size-10 shrink-0 items-center justify-center rounded-lg border border-accent/40 bg-secondary text-accent">
-              <FrogLogo className="size-7" />
+              <BankLogo className="size-6" />
             </span>
-            <span className="truncate font-display text-xl tracking-wide sm:text-2xl">Frog Enrolls</span>
+            <span className="truncate font-display text-xl tracking-wide sm:text-2xl">CardBank</span>
           </div>
           <div className="ml-auto flex items-center gap-2">
             <CartSheet />

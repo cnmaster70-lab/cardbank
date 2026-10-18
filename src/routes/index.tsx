@@ -13,13 +13,13 @@ import { listProducts } from "@/lib/shop.functions";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Frog Enrolls — Checked Enroll Balances, BTC Only" },
+      { title: "CardBank — Checked Enroll Balances, BTC Only" },
       {
         name: "description",
         content:
-          "Frog Enrolls: pre-made Visa, Mastercard and Discover enroll balances with full login access. Bitcoin payments only.",
+          "CardBank: pre-made Visa, Mastercard and Discover enroll balances with full login access. Bitcoin payments only.",
       },
-      { property: "og:title", content: "Frog Enrolls — Best quality enrolls" },
+      { property: "og:title", content: "CardBank — Best quality enrolls" },
       {
         property: "og:description",
         content: "Real checked balances, instant manual delivery, Bitcoin only.",
@@ -179,7 +179,7 @@ function Index() {
         </section>
 
         <footer className="mt-16 border-t border-border/60 pt-8 text-xs leading-relaxed text-muted-foreground">
-          Frog Enrolls · Bitcoin payments only · Balances update mostly 3 days a week. All sales are
+          CardBank · Bitcoin payments only · Balances update mostly 3 days a week. All sales are
           final once an enroll is delivered.
         </footer>
       </main>
