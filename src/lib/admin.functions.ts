@@ -136,12 +136,12 @@ export const restockOther = createServerFn({ method: "POST" })
     await requireAdmin();
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const rows = Array.from({ length: data.count }, () => {
-      const [brand, prefix] = BRANDS[Math.floor(Math.random() * BRANDS.length)];
+      const [brand, prefix] = BRANDS[Math.floor(Math.random() * BRANDS.length)]!;
       const price = Math.round((10 + Math.random() * 40) * 100) / 100;
       return {
         brand,
-        processor: NAMES[Math.floor(Math.random() * NAMES.length)],
-        city: CITIES[Math.floor(Math.random() * CITIES.length)],
+        processor: NAMES[Math.floor(Math.random() * NAMES.length)]!,
+        city: CITIES[Math.floor(Math.random() * CITIES.length)]!,
         bin: prefix + String(Math.floor(10000 + Math.random() * 89999)),
         last4: String(Math.floor(1000 + Math.random() * 9000)),
         balance: price,
