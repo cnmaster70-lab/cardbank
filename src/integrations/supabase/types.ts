@@ -52,6 +52,7 @@ export type Database = {
           balance: number
           bin: string
           brand: string
+          category: string
           city: string
           created_at: string
           id: string
@@ -64,6 +65,7 @@ export type Database = {
           balance: number
           bin: string
           brand: string
+          category?: string
           city: string
           created_at?: string
           id?: string
@@ -76,6 +78,7 @@ export type Database = {
           balance?: number
           bin?: string
           brand?: string
+          category?: string
           city?: string
           created_at?: string
           id?: string
