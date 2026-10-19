@@ -67,7 +67,8 @@ function Index() {
           <p className="text-[11px] uppercase tracking-[0.3em] text-accent">
             Random Visa · Mastercard · Discover
           </p>
-          <h1 className="font-display text-5xl leading-[1.05] sm:text-6xl">Available Balances</h1>
+          <h1 className="font-display text-5xl leading-[1.05] sm:text-6xl">Available Balances- enrolls
+ccs- below</h1>
           <p className="max-w-xl text-sm leading-relaxed text-muted-foreground">
             Every enroll below is a real, checked balance. Once it's marked sold out it's gone —
             restocks drop 3 days a week.
